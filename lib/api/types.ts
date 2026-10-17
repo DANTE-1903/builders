@@ -1,8 +1,8 @@
 /**
- * Response shapes for the boundless-nestjs public read API. Every response is
- * wrapped in `{ success, message, data, meta }`. `apiFetch` strips that outer
- * envelope, so callers see `Paginated<T>` for lists and the plain resource type
- * for single reads.
+ * Types for the boundless-nestjs public read API. Every response is wrapped in
+ * `{ success, message, data, meta }`; `apiFetch` strips that envelope, so callers
+ * type the call with the generated response DTO, e.g.
+ * `apiFetch<Schemas['BuildersDirectoryResponseDto']>('/users/directory')`.
  */
 
 import type { components, paths } from './generated/schema';
@@ -10,26 +10,14 @@ import type { components, paths } from './generated/schema';
 export type { components, paths };
 
 /**
- * Every named schema (DTO) from the backend OpenAPI document. Derive resource
- * types from here rather than hand-writing them, e.g.
- * `type BuilderListItem = Schemas['BuilderListItemDto']`. Regenerate with
- * `npm run codegen` (live backend) or `npm run codegen:snapshot` (committed doc).
+ * Every named schema (DTO) from `openapi.snapshot.json`. API shapes come from
+ * here, never hand-written. Maintainers update the snapshot; regenerate the
+ * types with `npm run codegen:snapshot`.
  */
 export type Schemas = components['schemas'];
 
-export interface PaginationMeta {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
-}
-
-export interface Paginated<T> {
-  data: T[];
-  pagination: PaginationMeta;
-}
+// The envelope is added by a global interceptor, so the OpenAPI document does
+// not describe it. These are the only hand-written response types.
 
 export interface ResponseMeta {
   timestamp: string;

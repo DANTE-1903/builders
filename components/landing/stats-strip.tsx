@@ -7,7 +7,7 @@ import { CountUp } from '@/components/ui/count-up';
 import { Skeleton } from '@/components/ui/skeleton';
 import { StatsBar, type StatItem } from '@/components/ui/stats-bar';
 import { apiFetch } from '@/lib/api/client';
-import type { Paginated } from '@/lib/api/types';
+import type { Schemas } from '@/lib/api/types';
 
 const STATS = [
   {
@@ -36,8 +36,14 @@ function NumberSkeleton({ mobile = false }: { mobile?: boolean }) {
   );
 }
 
+/** Every list the strip counts documents the same `pagination` block. */
+type CountedList =
+  | Schemas['BuildersDirectoryResponseDto']
+  | Schemas['PublicProjectListDto']
+  | Schemas['PublicOrganizationListDto'];
+
 async function fetchTotal(path: string) {
-  const response = await apiFetch<Paginated<unknown>>(path);
+  const response = await apiFetch<CountedList>(path);
   return response.pagination.total;
 }
 
