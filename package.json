@@ -8,7 +8,6 @@
     "start": "next start",
     "lint": "eslint",
     "seo:check": "node scripts/seo-check.mjs",
-    "codegen": "openapi-typescript ${OPENAPI_URL:-http://localhost:8000/openapi.json} -o lib/api/generated/schema.d.ts",
     "codegen:snapshot": "openapi-typescript openapi.snapshot.json -o lib/api/generated/schema.d.ts"
   },
   "dependencies": {

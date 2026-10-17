@@ -2,48 +2,22 @@ import type {
   OpportunityCardStatus,
   OpportunityCardView,
 } from '@/components/cards/types';
+import type { Schemas } from '@/lib/api/types';
 
-export type ProjectPublicStatus =
-  | 'LIVE'
-  | 'BETA'
-  | 'IN_DEVELOPMENT'
-  | 'ARCHIVED';
+/** One `/projects` or `/projects/featured` row. */
+export type ProjectCardDto = Schemas['PublicProjectCardDto'];
 
-export type ProjectOriginType =
-  | 'HACKATHON'
-  | 'GRANT'
-  | 'BOUNTY'
-  | 'CROWDFUNDING'
-  | 'MANUAL';
-
-interface ProjectOwnerDto {
-  name: string | null;
-}
-
-export interface FeaturedProjectDto {
-  id: string;
-  title: string;
-  category: string | null;
-  slug: string | null;
-  publicStatus: ProjectPublicStatus;
-  originType: ProjectOriginType | null;
-  isFeatured: boolean;
-  teamMembers: unknown[];
-  creator: ProjectOwnerDto;
-  organization: ProjectOwnerDto | null;
-  _count: {
-    comments: number;
-  };
-}
-
-const PROJECT_STATUS: Record<ProjectPublicStatus, OpportunityCardStatus> = {
+const PROJECT_STATUS: Record<
+  Schemas['ProjectPublicStatus'],
+  OpportunityCardStatus
+> = {
   LIVE: 'open',
   BETA: 'in_progress',
   IN_DEVELOPMENT: 'in_progress',
   ARCHIVED: 'completed',
 };
 
-const ORIGIN_LABEL: Record<ProjectOriginType, string> = {
+const ORIGIN_LABEL: Record<Schemas['ProjectOriginType'], string> = {
   HACKATHON: 'Hackathon',
   GRANT: 'Grant',
   BOUNTY: 'Bounty',
@@ -52,17 +26,18 @@ const ORIGIN_LABEL: Record<ProjectOriginType, string> = {
 };
 
 export function toProjectCard(
-  project: FeaturedProjectDto,
+  project: ProjectCardDto,
   index: number
 ): OpportunityCardView {
   return {
     id: project.id,
-    org: project.organization?.name ?? project.creator?.name ?? '',
+    org: project.organization?.name ?? project.creator.name,
     index: index + 1,
     status: PROJECT_STATUS[project.publicStatus],
     title: project.title,
     category: project.category ?? 'Uncategorized',
-    participants: project.teamMembers.length + 1,
+    // A solo project has no team; the creator is the one participant.
+    participants: project.team?.total ?? 1,
     mode: project.originType ? ORIGIN_LABEL[project.originType] : '',
     comments: project._count.comments,
     detailUrl: `/projects/${project.slug ?? project.id}`,

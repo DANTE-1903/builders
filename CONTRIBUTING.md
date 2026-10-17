@@ -170,6 +170,13 @@ import { BellIcon, BellBoldIcon } from '@/components/icons';
 - **Display-only data.** This app renders data shaped elsewhere. Card and view
   components should take plain props (view models), not fetch or transform API
   data themselves.
+- **API types come from the snapshot.** Type every API call with the generated
+  DTOs through `Schemas` in [`lib/api/types.ts`](./lib/api/types.ts), for
+  example `apiFetch<Schemas['PublicProjectListDto']>('/projects')`. Do not
+  hand-write an interface that mirrors an API response. The types are generated
+  from [`openapi.snapshot.json`](./openapi.snapshot.json), which holds only the
+  public routes this app calls. Maintainers update it when the API changes; if
+  you need a field or route that is not there, say so in your issue or PR.
 
 ## Code style
 

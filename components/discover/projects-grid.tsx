@@ -3,10 +3,9 @@
 import { OpportunityCard } from '@/components/cards/opportunity-card';
 import { OpportunityCardSkeleton } from '@/components/cards/opportunity-card-skeleton';
 import { Pagination } from '@/components/ui/pagination';
-import type { Paginated } from '@/lib/api/types';
 
 import { toProjectCard } from './to-project-card';
-import type { ProjectListItemDto } from './use-projects';
+import type { ProjectListResponse } from './use-projects';
 
 const GRID_CLASS = 'grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3';
 
@@ -19,7 +18,7 @@ export function ProjectsGrid({
   pageSize,
   onPageChange,
 }: {
-  data?: Paginated<ProjectListItemDto>;
+  data?: ProjectListResponse;
   isPending: boolean;
   isError: boolean;
   /** A search or filter is applied, so an empty result is a miss, not an empty directory. */

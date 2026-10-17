@@ -1,14 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { apiFetch } from '@/lib/api/client';
-import type { Paginated, Schemas, paths } from '@/lib/api/types';
+import type { Schemas, paths } from '@/lib/api/types';
 
 /**
- * `/users/directory` list item. Derived from the generated OpenAPI schema.
- * The DTO has no `followers` or `projects` fields, so the directory card
- * renders without those counts (see the open decision note in the PR).
+ * `/users/directory` list item. The DTO has no `followers` or `projects`
+ * fields, so the directory card renders without those counts.
  */
 export type BuilderListItemDto = Schemas['BuilderListItemDto'];
+
+/** One page of `/users/directory`. */
+export type BuildersDirectoryResponse = Schemas['BuildersDirectoryResponseDto'];
 
 /** Facets backing the builders filter rail. */
 export type BuilderFilters = Schemas['BuilderFiltersDto'];
@@ -98,7 +100,7 @@ export function useBuilders(params: BuildersQueryParams = {}) {
   return useQuery({
     queryKey: buildersKeys.list(params),
     queryFn: () =>
-      apiFetch<Paginated<BuilderListItemDto>>(
+      apiFetch<BuildersDirectoryResponse>(
         `/users/directory${toQueryString(params)}`
       ),
   });

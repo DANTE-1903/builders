@@ -9,12 +9,9 @@ import { ArrowRightIcon } from '@/components/icons';
 import { Section, SectionHeading } from '@/components/marketing/section';
 import { Button } from '@/components/ui/button';
 import { apiFetch } from '@/lib/api/client';
-import type { Paginated } from '@/lib/api/types';
+import type { Schemas } from '@/lib/api/types';
 
-import {
-  type FeaturedProjectDto,
-  toProjectCard,
-} from '@/components/discover/to-project-card';
+import { toProjectCard } from '@/components/discover/to-project-card';
 
 const FEATURED_PROJECTS_SKELETON_COUNT = 3;
 
@@ -22,7 +19,7 @@ function useFeaturedProjects() {
   return useQuery({
     queryKey: ['projects', 'featured'],
     queryFn: () =>
-      apiFetch<Paginated<FeaturedProjectDto>>('/projects/featured'),
+      apiFetch<Schemas['PublicProjectListDto']>('/projects/featured'),
   });
 }
 

@@ -3,10 +3,9 @@
 import { BuilderCard } from '@/components/cards/builder-card';
 import { BuilderCardSkeleton } from '@/components/cards/builder-card-skeleton';
 import { Pagination } from '@/components/ui/pagination';
-import type { Paginated } from '@/lib/api/types';
 
 import { toDirectoryBuilderCard } from './to-builder-directory-card';
-import type { BuilderListItemDto } from './use-builders';
+import type { BuildersDirectoryResponse } from './use-builders';
 
 const GRID_CLASS = 'grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4';
 
@@ -19,7 +18,7 @@ export function BuildersGrid({
   pageSize,
   onPageChange,
 }: {
-  data?: Paginated<BuilderListItemDto>;
+  data?: BuildersDirectoryResponse;
   isPending: boolean;
   isError: boolean;
   /** A search or filter is applied, so an empty result is a miss, not an empty directory. */

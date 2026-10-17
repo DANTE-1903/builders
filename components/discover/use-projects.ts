@@ -1,31 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { apiFetch } from '@/lib/api/client';
-import type { Paginated } from '@/lib/api/types';
+import type { Schemas } from '@/lib/api/types';
 
-import type { FeaturedProjectDto } from './to-project-card';
+/** One page of `/projects`. */
+export type ProjectListResponse = Schemas['PublicProjectListDto'];
 
-/**
- * `/projects` list item. Same `Project` entity the landing "Featured
- * projects" row already reads (`FeaturedProjectDto`), plus the `tags` the
- * directory filters by. Confirm this against a live `GET /api/projects`
- * response before relying on new fields.
- */
-export interface ProjectListItemDto extends FeaturedProjectDto {
-  tags: string[];
-}
-
-export interface FacetCount {
-  value: string;
-  count: number;
-}
-
-export interface ProjectFiltersResponse {
-  categories: FacetCount[];
-  tags: FacetCount[];
-  publicStatuses: string[];
-  originTypes: string[];
-}
+/** Facets for the `/projects` filter rail. */
+export type ProjectFilters = Schemas['ProjectFiltersDto'];
 
 /** Query params `GET /projects` accepts from the directory page. */
 export interface ProjectsQueryParams {
@@ -66,9 +48,7 @@ export function useProjects(params: ProjectsQueryParams = {}) {
   return useQuery({
     queryKey: projectsKeys.list(params),
     queryFn: () =>
-      apiFetch<Paginated<ProjectListItemDto>>(
-        `/projects${toQueryString(params)}`
-      ),
+      apiFetch<ProjectListResponse>(`/projects${toQueryString(params)}`),
   });
 }
 
@@ -76,6 +56,6 @@ export function useProjects(params: ProjectsQueryParams = {}) {
 export function useProjectFilters() {
   return useQuery({
     queryKey: projectsKeys.filters,
-    queryFn: () => apiFetch<ProjectFiltersResponse>('/projects/filters'),
+    queryFn: () => apiFetch<ProjectFilters>('/projects/filters'),
   });
 }
