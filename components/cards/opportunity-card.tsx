@@ -10,6 +10,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+import { deriveInitials } from '@/lib/initials';
 import { cn } from '@/lib/utils';
 
 import type { OpportunityCardStatus, OpportunityCardView } from './types';
@@ -81,10 +82,108 @@ export function OpportunityCard({
     participants,
     mode,
     comments,
+    logo,
     endsIn,
     reward,
     detailUrl,
   } = opportunity;
+
+  const card = (
+    <article
+      className={cn(
+        'flex min-w-0 flex-col gap-5 rounded-2xl border border-[#1f2a28] bg-ink p-4',
+        detailUrl &&
+          'transition-[transform,border-color] duration-200 group-hover:border-[#2a3a37] motion-reduce:transition-none'
+      )}
+    >
+      <div className='flex items-center gap-2'>
+        <div className='flex min-w-0 flex-1 items-center gap-2'>
+          {logo ? (
+            <Image
+              src={logo}
+              width={24}
+              height={24}
+              alt={org}
+              unoptimized
+              className='size-6 shrink-0 rounded-full bg-[#fefefe] object-cover'
+            />
+          ) : (
+            <span className='flex size-6 shrink-0 items-center justify-center rounded-full bg-[#fefefe] text-[10px] font-bold text-neutral-900'>
+              {deriveInitials(title)}
+            </span>
+          )}
+          <span className='truncate text-sm font-medium text-muted-foreground'>
+            {org}
+          </span>
+          <span className='shrink-0 text-sm font-medium text-muted-foreground'>
+            #{index}
+          </span>
+        </div>
+        <StatusBadge status={status} />
+      </div>
+
+      <h3 className='line-clamp-2 min-h-[52px] text-base font-semibold text-foreground'>
+        {title}
+      </h3>
+
+      {/* Single row: short items hold their size, the mode label truncates. */}
+      <div className='flex min-w-0 items-center gap-3'>
+        <span className='flex shrink-0 items-center gap-1'>
+          <Tag
+            className='size-4 shrink-0 text-muted-foreground'
+            strokeWidth={1.75}
+            aria-hidden
+          />
+          <span className='rounded-[12px] bg-[rgba(234,253,247,0.08)] px-2 py-0.5 text-xs font-medium text-primary-700'>
+            {category}
+          </span>
+        </span>
+        <Meta icon={Users} className='shrink-0'>
+          {participants}
+        </Meta>
+        <Meta icon={Layers} className='min-w-0'>
+          {mode}
+        </Meta>
+        <Meta icon={MessageCircleMore} className='shrink-0'>
+          {comments}
+        </Meta>
+      </div>
+
+      {endsIn || reward ? (
+        <>
+          <span aria-hidden className='h-px w-full bg-[#1f2a28]' />
+
+          <div className='flex items-center gap-3'>
+            {endsIn ? (
+              <span className='flex min-w-0 flex-1 items-center gap-1 text-xs font-medium text-info-500'>
+                <Calendar
+                  className='size-4 shrink-0'
+                  strokeWidth={1.75}
+                  aria-hidden
+                />
+                <span className='truncate'>Ends in {endsIn}</span>
+              </span>
+            ) : null}
+            {reward ? (
+              <span className='ml-auto flex shrink-0 items-center gap-2'>
+                <Image
+                  src='/currency/usdc.png'
+                  alt='Token'
+                  width={20}
+                  height={20}
+                />
+                <span className='text-xl font-bold tracking-tight whitespace-nowrap text-primary-600'>
+                  {reward.amount.toLocaleString()} {reward.currency}
+                </span>
+              </span>
+            ) : null}
+          </div>
+        </>
+      ) : null}
+    </article>
+  );
+
+  if (!detailUrl) return card;
 
   return (
     <Link
@@ -92,85 +191,7 @@ export function OpportunityCard({
       aria-label={title}
       className='group block min-w-0 rounded-2xl focus-visible:ring-2 focus-visible:ring-primary-500/50 focus-visible:outline-none'
     >
-      <article className='flex min-w-0 flex-col gap-5 rounded-2xl border border-[#1f2a28] bg-ink p-4 transition-[transform,border-color] duration-200 group-hover:border-[#2a3a37] motion-reduce:transition-none'>
-        <div className='flex items-center gap-2'>
-          <div className='flex min-w-0 flex-1 items-center gap-2'>
-            <Image
-              src='/brand/test.png'
-              width={24}
-              height={24}
-              alt={org}
-              className='size-6 shrink-0 rounded-full bg-[#fefefe] text-[10px] font-bold text-white'
-            />
-            <span className='truncate text-sm font-medium text-muted-foreground'>
-              {org}
-            </span>
-            <span className='shrink-0 text-sm font-medium text-muted-foreground'>
-              #{index}
-            </span>
-          </div>
-          <StatusBadge status={status} />
-        </div>
-
-        <h3 className='line-clamp-2 min-h-[52px] text-base font-semibold text-foreground'>
-          {title}
-        </h3>
-
-        {/* Single row: short items hold their size, the mode label truncates. */}
-        <div className='flex min-w-0 items-center gap-3'>
-          <span className='flex shrink-0 items-center gap-1'>
-            <Tag
-              className='size-4 shrink-0 text-muted-foreground'
-              strokeWidth={1.75}
-              aria-hidden
-            />
-            <span className='rounded-[12px] bg-[rgba(234,253,247,0.08)] px-2 py-0.5 text-xs font-medium text-primary-700'>
-              {category}
-            </span>
-          </span>
-          <Meta icon={Users} className='shrink-0'>
-            {participants}
-          </Meta>
-          <Meta icon={Layers} className='min-w-0'>
-            {mode}
-          </Meta>
-          <Meta icon={MessageCircleMore} className='shrink-0'>
-            {comments}
-          </Meta>
-        </div>
-
-        {endsIn || reward ? (
-          <>
-            <span aria-hidden className='h-px w-full bg-[#1f2a28]' />
-
-            <div className='flex items-center gap-3'>
-              {endsIn ? (
-                <span className='flex min-w-0 flex-1 items-center gap-1 text-xs font-medium text-info-500'>
-                  <Calendar
-                    className='size-4 shrink-0'
-                    strokeWidth={1.75}
-                    aria-hidden
-                  />
-                  <span className='truncate'>Ends in {endsIn}</span>
-                </span>
-              ) : null}
-              {reward ? (
-                <span className='ml-auto flex shrink-0 items-center gap-2'>
-                  <Image
-                    src='/currency/usdc.png'
-                    alt='Token'
-                    width={20}
-                    height={20}
-                  />
-                  <span className='text-xl font-bold tracking-tight whitespace-nowrap text-primary-600'>
-                    {reward.amount.toLocaleString()} {reward.currency}
-                  </span>
-                </span>
-              ) : null}
-            </div>
-          </>
-        ) : null}
-      </article>
+      {card}
     </Link>
   );
 }
