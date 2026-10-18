@@ -95,14 +95,100 @@ function toQueryString(params: BuildersQueryParams): string {
   return query ? `?${query}` : '';
 }
 
+export const BUILDERS_REVALIDATE_SECONDS = 60;
+export const BUILDERS_PAGE_SIZE = 12;
+export const BUILDERS_SEARCH_PARAM = 'q';
+
+export type BuilderFilterValue = Record<string, string[]> & {
+  skills: string[];
+  country: string[];
+  status: string[];
+};
+
+export function readBuilderFilters(params: URLSearchParams): BuilderFilterValue {
+  const country = params.get('country');
+  const status = params.get('status');
+  return {
+    skills: params.getAll('skills'),
+    country: country ? [country] : [],
+    status: status ? [status] : [],
+  };
+}
+
+export function readBuilderPage(params: URLSearchParams): number {
+  const raw = Number(params.get('page'));
+  return Number.isInteger(raw) && raw > 0 ? raw : 1;
+}
+
+export function readBuilderSort(params: URLSearchParams): BuilderSort {
+  const raw = params.get('sort');
+  return raw && isBuilderSort(raw) ? raw : DEFAULT_BUILDER_SORT;
+}
+
+export function toUrlSearchParams(
+  raw: Record<string, string | string[] | undefined>
+): URLSearchParams {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(raw)) {
+    if (value === undefined) continue;
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        params.append(key, item);
+      }
+    } else {
+      params.set(key, value);
+    }
+  }
+  return params;
+}
+
+export function parseBuildersQueryParams(
+  searchParams:
+    | URLSearchParams
+    | Record<string, string | string[] | undefined>
+): BuildersQueryParams {
+  const params =
+    searchParams instanceof URLSearchParams
+      ? searchParams
+      : toUrlSearchParams(searchParams);
+
+  const search = params.get(BUILDERS_SEARCH_PARAM) ?? '';
+  const filters = readBuilderFilters(params);
+  const page = readBuilderPage(params);
+  const sort = readBuilderSort(params);
+
+  return {
+    page,
+    limit: BUILDERS_PAGE_SIZE,
+    search: search || undefined,
+    skills: filters.skills?.length ? filters.skills : undefined,
+    country: filters.country?.[0],
+    status: filters.status?.[0],
+    sort,
+  };
+}
+
+export function fetchBuilders(
+  params: BuildersQueryParams = {},
+  init?: RequestInit
+): Promise<BuildersDirectoryResponse> {
+  return apiFetch<BuildersDirectoryResponse>(
+    `/users/directory${toQueryString(params)}`,
+    init
+  );
+}
+
+export function fetchBuilderFilters(
+  init?: RequestInit
+): Promise<BuilderFilters> {
+  return apiFetch<BuilderFilters>('/users/filters', init);
+}
+
 /** Paginated `/users/directory` list, filtered by the params above. */
 export function useBuilders(params: BuildersQueryParams = {}) {
   return useQuery({
     queryKey: buildersKeys.list(params),
-    queryFn: () =>
-      apiFetch<BuildersDirectoryResponse>(
-        `/users/directory${toQueryString(params)}`
-      ),
+    queryFn: () => fetchBuilders(params),
   });
 }
 
@@ -110,6 +196,7 @@ export function useBuilders(params: BuildersQueryParams = {}) {
 export function useBuilderFilters() {
   return useQuery({
     queryKey: buildersKeys.filters,
-    queryFn: () => apiFetch<BuilderFilters>('/users/filters'),
+    queryFn: () => fetchBuilderFilters(),
   });
 }
+

@@ -8,18 +8,19 @@ import { OpportunityCard } from '@/components/cards/opportunity-card';
 import { ArrowRightIcon } from '@/components/icons';
 import { Section, SectionHeading } from '@/components/marketing/section';
 import { Button } from '@/components/ui/button';
-import { apiFetch } from '@/lib/api/client';
-import type { Schemas } from '@/lib/api/types';
 
 import { toProjectCard } from '@/components/discover/to-project-card';
+import {
+  featuredProjectsQueryKey,
+  fetchFeaturedProjects,
+} from './landing-queries';
 
 const FEATURED_PROJECTS_SKELETON_COUNT = 3;
 
 function useFeaturedProjects() {
   return useQuery({
-    queryKey: ['projects', 'featured'],
-    queryFn: () =>
-      apiFetch<Schemas['PublicProjectListDto']>('/projects/featured'),
+    queryKey: featuredProjectsQueryKey,
+    queryFn: () => fetchFeaturedProjects(),
   });
 }
 

@@ -20,44 +20,26 @@ import {
 } from './filter-rail';
 import { FilterSheet } from './filter-sheet';
 import {
+  BUILDERS_PAGE_SIZE,
+  BUILDERS_SEARCH_PARAM,
   DEFAULT_BUILDER_SORT,
-  isBuilderSort,
+  parseBuildersQueryParams,
+  readBuilderFilters,
+  readBuilderPage,
+  readBuilderSort,
   useBuilderFilters,
   useBuilders,
   type BuilderSort,
   type BuildersQueryParams,
 } from './use-builders';
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = BUILDERS_PAGE_SIZE;
 const SEARCH_DEBOUNCE_MS = 300;
-const SEARCH_PARAM = 'q';
+const SEARCH_PARAM = BUILDERS_SEARCH_PARAM;
 
-/**
- * The query string is the source of truth for everything that narrows the
- * list, so a filtered view can be linked, bookmarked, and walked back through
- * with the browser buttons. Defaults are left out to keep the URL readable.
- */
-function readFilters(params: URLSearchParams): FilterValue {
-  const country = params.get('country');
-  const status = params.get('status');
-  return {
-    // Repeated `skills` params, matching what the endpoint accepts. Joining on
-    // a comma would break any facet whose own label contains one.
-    skills: params.getAll('skills'),
-    country: country ? [country] : [],
-    status: status ? [status] : [],
-  };
-}
-
-function readPage(params: URLSearchParams): number {
-  const raw = Number(params.get('page'));
-  return Number.isInteger(raw) && raw > 0 ? raw : 1;
-}
-
-function readSort(params: URLSearchParams): BuilderSort {
-  const raw = params.get('sort');
-  return raw && isBuilderSort(raw) ? raw : DEFAULT_BUILDER_SORT;
-}
+const readFilters = readBuilderFilters;
+const readPage = readBuilderPage;
+const readSort = readBuilderSort;
 
 function buildQuery(
   search: string,
@@ -174,18 +156,8 @@ export function BuildersView() {
   };
 
   const params = useMemo<BuildersQueryParams>(
-    () => ({
-      page,
-      limit: PAGE_SIZE,
-      search: search || undefined,
-      // `GET /users/directory` takes a single value for these two, so their
-      // rail sections are single-select radios. Only `skills` is repeatable.
-      skills: filters.skills?.length ? filters.skills : undefined,
-      country: filters.country?.[0],
-      status: filters.status?.[0],
-      sort,
-    }),
-    [page, search, filters, sort]
+    () => parseBuildersQueryParams(searchParams),
+    [searchParams]
   );
 
   const { data, isError, isPending } = useBuilders(params);
