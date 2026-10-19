@@ -57,6 +57,7 @@ export default async function Home() {
         queryFn: () =>
           fetchTotal(stat.path, {
             next: { revalidate: LANDING_REVALIDATE_SECONDS },
+            signal: AbortSignal.timeout(5000),
           }),
       })
     ),
@@ -65,6 +66,7 @@ export default async function Home() {
       queryFn: () =>
         fetchTopBuilders({
           next: { revalidate: LANDING_REVALIDATE_SECONDS },
+          signal: AbortSignal.timeout(5000),
         }),
     }),
     queryClient.prefetchQuery({
@@ -72,6 +74,7 @@ export default async function Home() {
       queryFn: () =>
         fetchFeaturedProjects({
           next: { revalidate: LANDING_REVALIDATE_SECONDS },
+          signal: AbortSignal.timeout(5000),
         }),
     }),
   ]);
@@ -105,12 +108,7 @@ export default async function Home() {
         </Section>
       </HeroBackground>
 
-      <HydrationBoundary
-        state={dehydrate(queryClient, {
-          shouldDehydrateQuery: (query) =>
-            query.state.status === 'success' || query.state.status === 'error',
-        })}
-      >
+      <HydrationBoundary state={dehydrate(queryClient)}>
         <StatsStrip />
         <TopBuilders />
         <FeaturedProjects />

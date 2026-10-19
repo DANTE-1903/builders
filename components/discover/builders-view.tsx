@@ -33,13 +33,7 @@ import {
   type BuildersQueryParams,
 } from './use-builders';
 
-const PAGE_SIZE = BUILDERS_PAGE_SIZE;
 const SEARCH_DEBOUNCE_MS = 300;
-const SEARCH_PARAM = BUILDERS_SEARCH_PARAM;
-
-const readFilters = readBuilderFilters;
-const readPage = readBuilderPage;
-const readSort = readBuilderSort;
 
 function buildQuery(
   search: string,
@@ -48,7 +42,7 @@ function buildQuery(
   sort: BuilderSort
 ): string {
   const next = new URLSearchParams();
-  if (search) next.set(SEARCH_PARAM, search);
+  if (search) next.set(BUILDERS_SEARCH_PARAM, search);
   for (const skill of filters.skills ?? []) next.append('skills', skill);
   if (filters.country?.[0]) next.set('country', filters.country[0]);
   if (filters.status?.[0]) next.set('status', filters.status[0]);
@@ -83,10 +77,10 @@ export function BuildersView() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const search = searchParams.get(SEARCH_PARAM) ?? '';
-  const filters = useMemo(() => readFilters(searchParams), [searchParams]);
-  const page = readPage(searchParams);
-  const sort = readSort(searchParams);
+  const search = searchParams.get(BUILDERS_SEARCH_PARAM) ?? '';
+  const filters = useMemo(() => readBuilderFilters(searchParams), [searchParams]);
+  const page = readBuilderPage(searchParams);
+  const sort = readBuilderSort(searchParams);
 
   const [searchInput, setSearchInput] = useState(search);
   const [railOpen, setRailOpen] = useState(true);
@@ -135,8 +129,8 @@ export function BuildersView() {
       // reverting the sort. Everything except the term is carried through
       // exactly as it stands at fire time.
       const next = new URLSearchParams(window.location.search);
-      if (trimmed) next.set(SEARCH_PARAM, trimmed);
-      else next.delete(SEARCH_PARAM);
+      if (trimmed) next.set(BUILDERS_SEARCH_PARAM, trimmed);
+      else next.delete(BUILDERS_SEARCH_PARAM);
       // Narrowing the list invalidates the page number.
       next.delete('page');
       const query = next.toString();
@@ -259,7 +253,7 @@ export function BuildersView() {
             isError={isError}
             isNarrowed={hasActiveFilters(filters) || search.length > 0}
             page={page}
-            pageSize={PAGE_SIZE}
+            pageSize={BUILDERS_PAGE_SIZE}
             onPageChange={next => navigate(search, filters, next, 'push')}
           />
         </div>
@@ -299,7 +293,7 @@ export function BuildersViewFallback() {
         subtitle='Meet the builders making an impact across the Boundless ecosystem.'
       />
       <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4'>
-        {Array.from({ length: PAGE_SIZE }, (_, index) => (
+        {Array.from({ length: BUILDERS_PAGE_SIZE }, (_, index) => (
           <BuilderCardSkeleton key={index} showStats={false} />
         ))}
       </div>

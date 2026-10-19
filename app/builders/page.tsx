@@ -69,6 +69,7 @@ export default async function BuildersPage(props: BuildersPageProps) {
       queryFn: () =>
         fetchBuilders(queryParams, {
           next: { revalidate: BUILDERS_REVALIDATE_SECONDS },
+          signal: AbortSignal.timeout(5000),
         }),
     }),
     queryClient.prefetchQuery({
@@ -76,6 +77,7 @@ export default async function BuildersPage(props: BuildersPageProps) {
       queryFn: () =>
         fetchBuilderFilters({
           next: { revalidate: BUILDERS_REVALIDATE_SECONDS },
+          signal: AbortSignal.timeout(5000),
         }),
     }),
   ]);
@@ -86,12 +88,7 @@ export default async function BuildersPage(props: BuildersPageProps) {
       <JsonLd data={buildersBreadcrumbs} />
 
       <SiteHeader />
-      <HydrationBoundary
-        state={dehydrate(queryClient, {
-          shouldDehydrateQuery: (query) =>
-            query.state.status === 'success' || query.state.status === 'error',
-        })}
-      >
+      <HydrationBoundary state={dehydrate(queryClient)}>
         <Suspense fallback={<BuildersViewFallback />}>
           <BuildersView />
         </Suspense>
