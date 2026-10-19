@@ -133,8 +133,11 @@ export function Avatar({
   initials,
   className,
 }: AvatarProps) {
-  const hasStatus = status !== 'none';
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
+
+  const hasStatus = status !== 'none';
+  const hasError = Boolean(src) && failedSrc === src;
+  const showImage = Boolean(src) && !hasError;
 
   return (
     <div className={cn('relative shrink-0', sizeClass[size], className)}>
@@ -145,14 +148,14 @@ export function Avatar({
           hasStatus && 'border-[1.5px] border-white'
         )}
       >
-        {src !== undefined && src !== failedSrc ? (
+        {showImage ? (
           <Image
-            src={src}
+            src={src!}
             alt={alt}
             fill
             className='object-cover'
             sizes={`${({ xs: 24, sm: 32, md: 40, lg: 48, xl: 56, '2xl': 64, '3xl': 80 } as const)[size]}px`}
-            onError={() => setFailedSrc(src)}
+            onError={() => setFailedSrc(src ?? null)}
           />
         ) : initials ? (
           <span
