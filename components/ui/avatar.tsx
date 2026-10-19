@@ -1,5 +1,8 @@
+'use client';
+
 import { Camera, Check, User } from 'lucide-react';
 import Image from 'next/image';
+import { useState } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -131,6 +134,7 @@ export function Avatar({
   className,
 }: AvatarProps) {
   const hasStatus = status !== 'none';
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
 
   return (
     <div className={cn('relative shrink-0', sizeClass[size], className)}>
@@ -141,13 +145,14 @@ export function Avatar({
           hasStatus && 'border-[1.5px] border-white'
         )}
       >
-        {src ? (
+        {src !== undefined && src !== failedSrc ? (
           <Image
             src={src}
             alt={alt}
             fill
             className='object-cover'
             sizes={`${({ xs: 24, sm: 32, md: 40, lg: 48, xl: 56, '2xl': 64, '3xl': 80 } as const)[size]}px`}
+            onError={() => setFailedSrc(src)}
           />
         ) : initials ? (
           <span
