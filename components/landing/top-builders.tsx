@@ -8,17 +8,18 @@ import { BuilderCardSkeleton } from '@/components/cards/builder-card-skeleton';
 import { ArrowRightIcon } from '@/components/icons';
 import { Section, SectionHeading } from '@/components/marketing/section';
 import { Button } from '@/components/ui/button';
-import { apiFetch } from '@/lib/api/client';
 
-import { type TopBuilder, toBuilderCard } from './to-builder-card';
-
-const TOP_BUILDERS_LIMIT = 8;
+import {
+  TOP_BUILDERS_LIMIT,
+  topBuildersQueryKey,
+  fetchTopBuilders,
+} from './landing-queries';
+import { toBuilderCard } from './to-builder-card';
 
 function useTopBuilders() {
   return useQuery({
-    queryKey: ['users', 'top-builders', TOP_BUILDERS_LIMIT],
-    queryFn: () =>
-      apiFetch<TopBuilder[]>(`/users/top-builders?limit=${TOP_BUILDERS_LIMIT}`),
+    queryKey: topBuildersQueryKey,
+    queryFn: () => fetchTopBuilders(),
   });
 }
 

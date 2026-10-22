@@ -1,5 +1,6 @@
 import type { BuilderCardView } from '@/components/cards/types';
 import type { Schemas } from '@/lib/api/types';
+import { profileUrl } from '@/lib/main-app';
 
 const MAX_SKILLS = 4;
 
@@ -16,6 +17,6 @@ export function toBuilderCard(builder: TopBuilder): BuilderCardView {
     skills: builder.skills.slice(0, MAX_SKILLS),
     followers: builder.followers,
     projects: builder.projects,
-    detailUrl: builder.username ? `/builders/${builder.username}` : undefined,
+    detailUrl: builder.username ? profileUrl(builder.username) : undefined,
   };
 }

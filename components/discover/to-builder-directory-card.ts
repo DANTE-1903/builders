@@ -1,4 +1,5 @@
 import type { BuilderCardView } from '@/components/cards/types';
+import { profileUrl } from '@/lib/main-app';
 
 import type { BuilderListItemDto } from './use-builders';
 
@@ -21,10 +22,8 @@ export function toDirectoryBuilderCard(
     location: builder.location ?? builder.country ?? undefined,
     skills: builder.skills?.slice(0, MAX_SKILLS),
     // Only link out when a username exists; a null username would otherwise
-    // produce a `/builders/null` href. Cards without a target render as plain
+    // produce a `/profile/null` href. Cards without a target render as plain
     // (non-clickable) cards.
-    detailUrl: builder.username
-      ? `/builders/${builder.username}`
-      : undefined,
+    detailUrl: builder.username ? profileUrl(builder.username) : undefined,
   };
 }

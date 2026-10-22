@@ -1,9 +1,21 @@
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from '@tanstack/react-query';
 import Link from 'next/link';
 
 import {
   FeaturedProjects,
+  featuredProjectsQueryKey,
+  fetchFeaturedProjects,
+  fetchTopBuilders,
+  fetchTotal,
+  LANDING_REVALIDATE_SECONDS,
+  STATS,
   StatsStrip,
   TopBuilders,
+  topBuildersQueryKey,
   WantToBuild,
 } from '@/components/landing';
 import { SiteFooter } from '@/components/layout/site-footer';
@@ -29,7 +41,44 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
+export default async function Home() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60_000,
+      },
+    },
+  });
+
+  await Promise.allSettled([
+    ...STATS.map((stat) =>
+      queryClient.prefetchQuery({
+        queryKey: stat.queryKey,
+        queryFn: () =>
+          fetchTotal(stat.path, {
+            next: { revalidate: LANDING_REVALIDATE_SECONDS },
+            signal: AbortSignal.timeout(5000),
+          }),
+      })
+    ),
+    queryClient.prefetchQuery({
+      queryKey: topBuildersQueryKey,
+      queryFn: () =>
+        fetchTopBuilders({
+          next: { revalidate: LANDING_REVALIDATE_SECONDS },
+          signal: AbortSignal.timeout(5000),
+        }),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: featuredProjectsQueryKey,
+      queryFn: () =>
+        fetchFeaturedProjects({
+          next: { revalidate: LANDING_REVALIDATE_SECONDS },
+          signal: AbortSignal.timeout(5000),
+        }),
+    }),
+  ]);
+
   return (
     <>
       <SiteHeader />
@@ -46,12 +95,13 @@ export default function Home() {
             <span className='text-primary-500'>Stellar</span>
           </h1>
           <p className='mx-auto mt-6 max-w-2xl text-body-lg text-muted-foreground'>
-            Explore the projects, teams, and creators building across the
-            Boundless ecosystem. This app showcases the work. Creating and
-            uploading happens in the main Boundless app.
+            Explore the projects and creators building across the Boundless
+            ecosystem.
           </p>
           <div className='mt-10 flex flex-wrap items-center justify-center gap-4'>
-            <Button size='large'>Explore builders</Button>
+            <Button asChild size='large'>
+              <Link href='/builders'>Explore builders</Link>
+            </Button>
             <Button intent='secondary' appearance='outline' size='large' asChild>
               <Link href='/projects'>View projects</Link>
             </Button>
@@ -59,9 +109,11 @@ export default function Home() {
         </Section>
       </HeroBackground>
 
-      <StatsStrip />
-      <TopBuilders />
-      <FeaturedProjects />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <StatsStrip />
+        <TopBuilders />
+        <FeaturedProjects />
+      </HydrationBoundary>
       <WantToBuild />
 
       <SiteFooter />
