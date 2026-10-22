@@ -5,6 +5,7 @@ import { SocialGlyph } from '@/components/layout/brand-icons';
 import { FooterGlow } from '@/components/layout/footer-glow';
 import { Button } from '@/components/ui/button';
 import { footerColumns, socialLinks } from '@/config/marketing-nav';
+import { siteConfig } from '@/lib/seo/site';
 
 function externalLinkProps(href: string) {
   return href.startsWith('http') ? { target: '_blank', rel: 'noreferrer' } : {};
@@ -42,8 +43,15 @@ export function SiteFooter() {
                   intent='white'
                   shape='pill'
                   className='mt-5 w-full font-semibold lg:w-auto'
+                  asChild
                 >
-                  Get Updates
+                  <a
+                    href={`${siteConfig.parentUrl}/#newsletter`}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                  >
+                    Get Updates
+                  </a>
                 </Button>
               </div>
 
