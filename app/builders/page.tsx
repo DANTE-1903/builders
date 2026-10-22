@@ -1,9 +1,21 @@
 import { Suspense } from 'react';
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from '@tanstack/react-query';
 
 import {
   BuildersView,
   BuildersViewFallback,
 } from '@/components/discover/builders-view';
+import {
+  BUILDERS_REVALIDATE_SECONDS,
+  buildersKeys,
+  fetchBuilderFilters,
+  fetchBuilders,
+  parseBuildersQueryParams,
+} from '@/components/discover/use-builders';
 import { SiteFooter } from '@/components/layout/site-footer';
 import { SiteHeader } from '@/components/layout/site-header';
 import { JsonLd } from '@/components/seo/json-ld';
@@ -33,16 +45,54 @@ const buildersBreadcrumbs = breadcrumbSchema([
   { name: 'Builders', path: '/builders' },
 ]);
 
-export default function BuildersPage() {
+interface BuildersPageProps {
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function BuildersPage(props: BuildersPageProps) {
+  const resolvedSearchParams = props.searchParams
+    ? await props.searchParams
+    : {};
+  const queryParams = parseBuildersQueryParams(resolvedSearchParams);
+
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60_000,
+      },
+    },
+  });
+
+  await Promise.allSettled([
+    queryClient.prefetchQuery({
+      queryKey: buildersKeys.list(queryParams),
+      queryFn: () =>
+        fetchBuilders(queryParams, {
+          next: { revalidate: BUILDERS_REVALIDATE_SECONDS },
+          signal: AbortSignal.timeout(5000),
+        }),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: buildersKeys.filters,
+      queryFn: () =>
+        fetchBuilderFilters({
+          next: { revalidate: BUILDERS_REVALIDATE_SECONDS },
+          signal: AbortSignal.timeout(5000),
+        }),
+    }),
+  ]);
+
   return (
     <>
       <JsonLd data={buildersSchema} />
       <JsonLd data={buildersBreadcrumbs} />
 
       <SiteHeader />
-      <Suspense fallback={<BuildersViewFallback />}>
-        <BuildersView />
-      </Suspense>
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <Suspense fallback={<BuildersViewFallback />}>
+          <BuildersView />
+        </Suspense>
+      </HydrationBoundary>
       <SiteFooter />
     </>
   );

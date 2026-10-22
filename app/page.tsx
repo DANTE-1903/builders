@@ -1,9 +1,21 @@
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from '@tanstack/react-query';
 import Link from 'next/link';
 
 import {
   FeaturedProjects,
+  featuredProjectsQueryKey,
+  fetchFeaturedProjects,
+  fetchTopBuilders,
+  fetchTotal,
+  LANDING_REVALIDATE_SECONDS,
+  STATS,
   StatsStrip,
   TopBuilders,
+  topBuildersQueryKey,
   WantToBuild,
 } from '@/components/landing';
 import { SiteFooter } from '@/components/layout/site-footer';
@@ -29,7 +41,44 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
+export default async function Home() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60_000,
+      },
+    },
+  });
+
+  await Promise.allSettled([
+    ...STATS.map((stat) =>
+      queryClient.prefetchQuery({
+        queryKey: stat.queryKey,
+        queryFn: () =>
+          fetchTotal(stat.path, {
+            next: { revalidate: LANDING_REVALIDATE_SECONDS },
+            signal: AbortSignal.timeout(5000),
+          }),
+      })
+    ),
+    queryClient.prefetchQuery({
+      queryKey: topBuildersQueryKey,
+      queryFn: () =>
+        fetchTopBuilders({
+          next: { revalidate: LANDING_REVALIDATE_SECONDS },
+          signal: AbortSignal.timeout(5000),
+        }),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: featuredProjectsQueryKey,
+      queryFn: () =>
+        fetchFeaturedProjects({
+          next: { revalidate: LANDING_REVALIDATE_SECONDS },
+          signal: AbortSignal.timeout(5000),
+        }),
+    }),
+  ]);
+
   return (
     <>
       <SiteHeader />
@@ -60,9 +109,11 @@ export default function Home() {
         </Section>
       </HeroBackground>
 
-      <StatsStrip />
-      <TopBuilders />
-      <FeaturedProjects />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <StatsStrip />
+        <TopBuilders />
+        <FeaturedProjects />
+      </HydrationBoundary>
       <WantToBuild />
 
       <SiteFooter />
