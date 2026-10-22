@@ -3,6 +3,7 @@ import type {
   OpportunityCardView,
 } from '@/components/cards/types';
 import type { Schemas } from '@/lib/api/types';
+import { projectUrl } from '@/lib/main-app';
 
 /** One `/projects` or `/projects/featured` row. */
 export type ProjectCardDto = Schemas['PublicProjectCardDto'];
@@ -40,7 +41,9 @@ export function toProjectCard(
     participants: project.team?.total ?? 1,
     mode: project.originType ? ORIGIN_LABEL[project.originType] : '',
     comments: project._count.comments,
-    detailUrl: `/projects/${project.slug ?? project.id}`,
+    logo: project.logo ?? undefined,
+    // Only link out when a slug exists; do not fall back to the id.
+    detailUrl: project.slug ? projectUrl(project.slug) : undefined,
     isFeatured: project.isFeatured,
   };
 }
