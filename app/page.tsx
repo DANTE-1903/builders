@@ -51,7 +51,9 @@ export default function Home() {
             uploading happens in the main Boundless app.
           </p>
           <div className='mt-10 flex flex-wrap items-center justify-center gap-4'>
-            <Button size='large'>Explore builders</Button>
+            <Button asChild size='large'>
+              <Link href='/builders'>Explore builders</Link>
+            </Button>
             <Button intent='secondary' appearance='outline' size='large' asChild>
               <Link href='/projects'>View projects</Link>
             </Button>
