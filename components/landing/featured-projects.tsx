@@ -8,12 +8,13 @@ import { OpportunityCard } from '@/components/cards/opportunity-card';
 import { ArrowRightIcon } from '@/components/icons';
 import { Section, SectionHeading } from '@/components/marketing/section';
 import { Button } from '@/components/ui/button';
+import { mainAppUrl } from '@/lib/main-app';
 
-import { toProjectCard } from '@/components/discover/to-project-card';
 import {
   featuredProjectsQueryKey,
   fetchFeaturedProjects,
 } from './landing-queries';
+import { toProjectCard } from './to-project-card';
 
 const FEATURED_PROJECTS_SKELETON_COUNT = 3;
 
@@ -85,7 +86,7 @@ export function FeaturedProjects() {
           size='large'
           asChild
         >
-          <Link href='/projects'>
+          <Link href={mainAppUrl('/projects')}>
             Browse all projects
             <ArrowRightIcon aria-hidden />
           </Link>

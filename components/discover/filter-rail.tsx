@@ -17,8 +17,8 @@ import { cn } from '@/lib/utils';
 
 /**
  * Any selection state shaped as named groups of strings (skills, country,
- * status, category, tags, ...). The generic shape is what lets the rail drive
- * both the projects and builders directories from one component.
+ * status, ...). The parent decides which groups exist, so the rail itself
+ * stays generic.
  */
 export type FilterValue = Record<string, string[]>;
 
@@ -198,9 +198,8 @@ function sectionRows(
 /**
  * Discovery filter controls, shared by the desktop sidebar and the mobile
  * sheet. Controlled: the parent owns `value` so it can show a Reset affordance
- * and run the query. Sections are configured by the parent, so the projects
- * (category/tags/status/origin) and builders (skills/country/status) pages
- * render the same controls from one source. `idPrefix` keeps the two instances
+ * and run the query. Sections are configured by the parent (the builders
+ * directory passes skills/country/status). `idPrefix` keeps the two instances
  * from sharing input ids.
  */
 export function FilterRail({

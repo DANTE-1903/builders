@@ -47,7 +47,7 @@ const START_TIMEOUT_MS = 60_000;
 const FETCH_TIMEOUT_MS = 15_000;
 
 /** HTML routes to check for all four SEO signals. */
-const HTML_ROUTES = ['/', '/about', '/builders', '/projects'];
+const HTML_ROUTES = ['/', '/about', '/builders'];
 
 /** Plain-text / XML routes that must return HTTP 200. */
 const STATUS_ROUTES = ['/robots.txt', '/sitemap.xml'];

@@ -1,24 +1,25 @@
-'use client';
+"use client";
 
-import { getCountryDataList } from 'countries-list';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { getCountryDataList } from "countries-list";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { BuilderCardSkeleton } from '@/components/cards/builder-card-skeleton';
-import { Activity01Icon, CodeIcon, GlobeIcon } from '@/components/icons';
-import { Section } from '@/components/marketing/section';
+import { BuilderCardSkeleton } from "@/components/cards/builder-card-skeleton";
+import { Activity01Icon, CodeIcon, GlobeIcon } from "@/components/icons";
+import { HowToGetListedDialog } from "@/components/discover/how-to-get-listed-dialog";
+import { Section } from "@/components/marketing/section";
 
-import { BuildersGrid } from './builders-grid';
-import { BuildersSortSelect } from './builders-sort-select';
-import { StatsBanner } from './stats-banner';
-import { DiscoverToolbar } from './discover-toolbar';
+import { BuildersGrid } from "./builders-grid";
+import { BuildersSortSelect } from "./builders-sort-select";
+import { StatsBanner } from "./stats-banner";
+import { DiscoverToolbar } from "./discover-toolbar";
 import {
   FilterRail,
   hasActiveFilters,
   type FilterSectionConfig,
   type FilterValue,
-} from './filter-rail';
-import { FilterSheet } from './filter-sheet';
+} from "./filter-rail";
+import { FilterSheet } from "./filter-sheet";
 import {
   BUILDERS_PAGE_SIZE,
   BUILDERS_SEARCH_PARAM,
@@ -31,7 +32,7 @@ import {
   useBuilders,
   type BuilderSort,
   type BuildersQueryParams,
-} from './use-builders';
+} from "./use-builders";
 
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -39,15 +40,15 @@ function buildQuery(
   search: string,
   filters: FilterValue,
   page: number,
-  sort: BuilderSort
+  sort: BuilderSort,
 ): string {
   const next = new URLSearchParams();
   if (search) next.set(BUILDERS_SEARCH_PARAM, search);
-  for (const skill of filters.skills ?? []) next.append('skills', skill);
-  if (filters.country?.[0]) next.set('country', filters.country[0]);
-  if (filters.status?.[0]) next.set('status', filters.status[0]);
-  if (page > 1) next.set('page', String(page));
-  if (sort !== DEFAULT_BUILDER_SORT) next.set('sort', sort);
+  for (const skill of filters.skills ?? []) next.append("skills", skill);
+  if (filters.country?.[0]) next.set("country", filters.country[0]);
+  if (filters.status?.[0]) next.set("status", filters.status[0]);
+  if (page > 1) next.set("page", String(page));
+  if (sort !== DEFAULT_BUILDER_SORT) next.set("sort", sort);
   return next.toString();
 }
 
@@ -59,7 +60,7 @@ const EMPTY_FILTERS: FilterValue = {
 
 /** ISO alpha-2 code -> country name, for friendlier facet labels. */
 const COUNTRY_NAMES = new Map<string, string>(
-  getCountryDataList().map(country => [country.iso2, country.name])
+  getCountryDataList().map((country) => [country.iso2, country.name]),
 );
 
 function countryLabel(code: string): string | undefined {
@@ -77,7 +78,7 @@ export function BuildersView() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const search = searchParams.get(BUILDERS_SEARCH_PARAM) ?? '';
+  const search = searchParams.get(BUILDERS_SEARCH_PARAM) ?? "";
   const filters = useMemo(() => readBuilderFilters(searchParams), [searchParams]);
   const page = readBuilderPage(searchParams);
   const sort = readBuilderSort(searchParams);
@@ -85,6 +86,7 @@ export function BuildersView() {
   const [searchInput, setSearchInput] = useState(search);
   const [railOpen, setRailOpen] = useState(true);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [helpDialogOpen, setHelpDialogOpen] = useState(false);
 
   // The box is the one control not driven straight from the URL, because typing
   // has to stay off the network until the visitor pauses. `committed` remembers
@@ -105,16 +107,16 @@ export function BuildersView() {
       nextSearch: string,
       nextFilters: FilterValue,
       nextPage: number,
-      mode: 'push' | 'replace',
-      nextSort: BuilderSort = sort
+      mode: "push" | "replace",
+      nextSort: BuilderSort = sort,
     ) => {
       const query = buildQuery(nextSearch, nextFilters, nextPage, nextSort);
-      const href = query ? `/builders?${query}` : '/builders';
+      const href = query ? `/builders?${query}` : "/builders";
       // `scroll: false` so narrowing the list does not yank the page to the top.
-      if (mode === 'replace') router.replace(href, { scroll: false });
+      if (mode === "replace") router.replace(href, { scroll: false });
       else router.push(href, { scroll: false });
     },
-    [router, sort]
+    [router, sort],
   );
 
   // Search uses replace so a debounced keystroke does not add a history entry.
@@ -132,9 +134,9 @@ export function BuildersView() {
       if (trimmed) next.set(BUILDERS_SEARCH_PARAM, trimmed);
       else next.delete(BUILDERS_SEARCH_PARAM);
       // Narrowing the list invalidates the page number.
-      next.delete('page');
+      next.delete("page");
       const query = next.toString();
-      router.replace(query ? `/builders?${query}` : '/builders', {
+      router.replace(query ? `/builders?${query}` : "/builders", {
         scroll: false,
       });
     }, SEARCH_DEBOUNCE_MS);
@@ -142,11 +144,11 @@ export function BuildersView() {
   }, [searchInput, search, router]);
 
   const applyFilters = (next: FilterValue) => {
-    navigate(search, next, 1, 'push');
+    navigate(search, next, 1, "push");
   };
 
   const applySort = (next: BuilderSort) => {
-    navigate(search, filters, 1, 'push', next);
+    navigate(search, filters, 1, "push", next);
   };
 
   const params = useMemo<BuildersQueryParams>(
@@ -165,39 +167,39 @@ export function BuildersView() {
     if (!facets) return [];
     return [
       {
-        group: 'skills',
-        selection: 'multi',
-        title: 'Skills',
+        group: "skills",
+        selection: "multi",
+        title: "Skills",
         icon: CodeIcon,
-        kind: 'facet',
+        kind: "facet",
         items: facets.skills,
       },
       {
-        group: 'country',
-        selection: 'single',
-        title: 'Country',
+        group: "country",
+        selection: "single",
+        title: "Country",
         icon: GlobeIcon,
-        kind: 'facet',
-        items: facets.countries.map(item => ({
+        kind: "facet",
+        items: facets.countries.map((item) => ({
           ...item,
           label: countryLabel(item.value) ?? item.value,
         })),
       },
       {
-        group: 'status',
-        selection: 'single',
-        title: 'Status',
+        group: "status",
+        selection: "single",
+        title: "Status",
         icon: Activity01Icon,
-        kind: 'enum',
+        kind: "enum",
         items: facets.statuses,
       },
     ];
   }, [facets]);
 
   const reset = () => {
-    setCommitted('');
-    setSearchInput('');
-    navigate('', EMPTY_FILTERS, 1, 'push');
+    setCommitted("");
+    setSearchInput("");
+    navigate("", EMPTY_FILTERS, 1, "push");
   };
 
   // A shared link can name a page that no longer exists (the directory shrank,
@@ -206,37 +208,42 @@ export function BuildersView() {
   const totalPages = data?.pagination.totalPages ?? 0;
   useEffect(() => {
     if (totalPages > 0 && page > totalPages) {
-      navigate(search, filters, totalPages, 'replace');
+      navigate(search, filters, totalPages, "replace");
     }
   }, [page, totalPages, search, filters, sort, navigate]);
 
   return (
     <Section
-      className='pt-4 pb-16 lg:pt-4 lg:pb-16'
-      innerClassName='flex flex-col gap-8'
+      className="pt-4 pb-16 lg:pt-4 lg:pb-16"
+      innerClassName="flex flex-col gap-8"
     >
       <StatsBanner
-        title='Discover the people building what is next'
-        subtitle='Meet the builders making an impact across the Boundless ecosystem.'
+        title="Discover the people building what is next"
+        subtitle="Meet the builders making an impact across the Boundless ecosystem."
+        subtitleWithLink={{
+          text: "Builders appear here once their profile is complete and they have shipped work on Boundless.",
+          linkText: "How to get listed",
+          onLinkClick: () => setHelpDialogOpen(true),
+        }}
       />
 
       <DiscoverToolbar
         filtersOpen={railOpen}
-        onToggleFilters={() => setRailOpen(open => !open)}
+        onToggleFilters={() => setRailOpen((open) => !open)}
         onOpenMobileFilters={() => setSheetOpen(true)}
         filtersActive={hasActiveFilters(filters)}
         onReset={reset}
         query={searchInput}
         onQueryChange={setSearchInput}
-        placeholder='Search builders, skills, or locations'
+        placeholder="Search builders, skills, or locations"
         sort={<BuildersSortSelect value={sort} onChange={applySort} />}
       />
 
-      <div className='flex items-start gap-6'>
+      <div className="flex items-start gap-6">
         {railOpen ? (
-          <aside className='hidden w-[260px] shrink-0 lg:block'>
+          <aside className="hidden w-[260px] shrink-0 lg:block">
             <FilterRail
-              idPrefix='rail'
+              idPrefix="rail"
               sections={filterSections}
               value={filters}
               onChange={applyFilters}
@@ -246,7 +253,7 @@ export function BuildersView() {
           </aside>
         ) : null}
 
-        <div className='min-w-0 flex-1'>
+        <div className="min-w-0 flex-1">
           <BuildersGrid
             data={data}
             isPending={isPending}
@@ -254,18 +261,15 @@ export function BuildersView() {
             isNarrowed={hasActiveFilters(filters) || search.length > 0}
             page={page}
             pageSize={BUILDERS_PAGE_SIZE}
-            onPageChange={next => navigate(search, filters, next, 'push')}
+            onPageChange={(next) => navigate(search, filters, next, "push")}
+            onHelpClick={() => setHelpDialogOpen(true)}
           />
         </div>
       </div>
 
-      <FilterSheet
-        open={sheetOpen}
-        onOpenChange={setSheetOpen}
-        onReset={reset}
-      >
+      <FilterSheet open={sheetOpen} onOpenChange={setSheetOpen} onReset={reset}>
         <FilterRail
-          idPrefix='sheet'
+          idPrefix="sheet"
           sections={filterSections}
           value={filters}
           onChange={applyFilters}
@@ -273,6 +277,11 @@ export function BuildersView() {
           isError={facetsError}
         />
       </FilterSheet>
+
+      <HowToGetListedDialog
+        open={helpDialogOpen}
+        onOpenChange={setHelpDialogOpen}
+      />
     </Section>
   );
 }
@@ -285,14 +294,14 @@ export function BuildersView() {
 export function BuildersViewFallback() {
   return (
     <Section
-      className='pt-4 pb-16 lg:pt-4 lg:pb-16'
-      innerClassName='flex flex-col gap-8'
+      className="pt-4 pb-16 lg:pt-4 lg:pb-16"
+      innerClassName="flex flex-col gap-8"
     >
       <StatsBanner
-        title='Discover the people building what is next'
-        subtitle='Meet the builders making an impact across the Boundless ecosystem.'
+        title="Discover the people building what is next"
+        subtitle="Meet the builders making an impact across the Boundless ecosystem."
       />
-      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4'>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: BUILDERS_PAGE_SIZE }, (_, index) => (
           <BuilderCardSkeleton key={index} showStats={false} />
         ))}

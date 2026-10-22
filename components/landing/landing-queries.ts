@@ -19,17 +19,12 @@ export const STATS = [
     path: '/projects?limit=1',
     queryKey: ['ecosystem-stats', 'projects'] as const,
   },
-  {
-    label: 'Teams',
-    path: '/organizations?limit=1',
-    queryKey: ['ecosystem-stats', 'teams'] as const,
-  },
 ] as const;
 
+/** Every list the strip counts documents the same `pagination` block. */
 export type CountedList =
   | Schemas['BuildersDirectoryResponseDto']
-  | Schemas['PublicProjectListDto']
-  | Schemas['PublicOrganizationListDto'];
+  | Schemas['PublicProjectListDto'];
 
 export async function fetchTotal(
   path: string,

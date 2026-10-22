@@ -46,10 +46,12 @@ export interface OpportunityCardView {
   /** Sub-mode label or pillar name. Empty string when nothing better is available. */
   mode: string;
   comments: number;
+  /** Optional project logo image URL. */
+  logo?: string;
   /** Pre-formatted countdown like `4D:22H:49M` when a deadline is available. */
   endsIn?: string;
   reward?: { amount: number; currency: string };
-  /** Detail page path so cards can link out. */
-  detailUrl: string;
+  /** Detail page URL so cards can link out. Absent when there is no target. */
+  detailUrl?: string;
   isFeatured: boolean;
 }

@@ -95,12 +95,13 @@ export default async function Home() {
             <span className='text-primary-500'>Stellar</span>
           </h1>
           <p className='mx-auto mt-6 max-w-2xl text-body-lg text-muted-foreground'>
-            Explore the projects, teams, and creators building across the
-            Boundless ecosystem. This app showcases the work. Creating and
-            uploading happens in the main Boundless app.
+            Explore the projects and creators building across the Boundless
+            ecosystem.
           </p>
           <div className='mt-10 flex flex-wrap items-center justify-center gap-4'>
-            <Button size='large'>Explore builders</Button>
+            <Button asChild size='large'>
+              <Link href='/builders'>Explore builders</Link>
+            </Button>
             <Button intent='secondary' appearance='outline' size='large' asChild>
               <Link href='/projects'>View projects</Link>
             </Button>
