@@ -10,6 +10,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+import { Avatar } from '@/components/ui/avatar';
 import { deriveInitials } from '@/lib/initials';
 import { cn } from '@/lib/utils';
 
@@ -98,20 +99,13 @@ export function OpportunityCard({
     >
       <div className='flex items-center gap-2'>
         <div className='flex min-w-0 flex-1 items-center gap-2'>
-          {logo ? (
-            <Image
-              src={logo}
-              width={24}
-              height={24}
-              alt={org}
-              unoptimized
-              className='size-6 shrink-0 rounded-full bg-[#fefefe] object-cover'
-            />
-          ) : (
-            <span className='flex size-6 shrink-0 items-center justify-center rounded-full bg-[#fefefe] text-[10px] font-bold text-neutral-900'>
-              {deriveInitials(title)}
-            </span>
-          )}
+          <Avatar
+            src={logo}
+            initials={deriveInitials(title)}
+            alt={title}
+            size='xs'
+            className='shrink-0'
+          />
           <span className='truncate text-sm font-medium text-muted-foreground'>
             {org}
           </span>
