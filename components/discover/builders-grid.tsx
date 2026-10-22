@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { BuilderCard } from '@/components/cards/builder-card';
-import { BuilderCardSkeleton } from '@/components/cards/builder-card-skeleton';
-import { Pagination } from '@/components/ui/pagination';
+import { BuilderCard } from "@/components/cards/builder-card";
+import { BuilderCardSkeleton } from "@/components/cards/builder-card-skeleton";
+import { Pagination } from "@/components/ui/pagination";
 
-import { toDirectoryBuilderCard } from './to-builder-directory-card';
-import type { BuildersDirectoryResponse } from './use-builders';
+import { toDirectoryBuilderCard } from "./to-builder-directory-card";
+import type { BuildersDirectoryResponse } from "./use-builders";
 
-const GRID_CLASS = 'grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4';
+const GRID_CLASS = "grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4";
 
 export function BuildersGrid({
   data,
@@ -17,6 +17,7 @@ export function BuildersGrid({
   page,
   pageSize,
   onPageChange,
+  onHelpClick,
 }: {
   data?: BuildersDirectoryResponse;
   isPending: boolean;
@@ -26,6 +27,8 @@ export function BuildersGrid({
   page: number;
   pageSize: number;
   onPageChange: (page: number) => void;
+  /** Called when the user clicks "How to get listed" in the empty state. */
+  onHelpClick?: () => void;
 }) {
   if (isPending) {
     return (
@@ -39,7 +42,7 @@ export function BuildersGrid({
 
   if (isError || !data) {
     return (
-      <p className='py-12 text-center text-body-sm text-muted-foreground'>
+      <p className="py-12 text-center text-body-sm text-muted-foreground">
         Builders could not be loaded right now.
       </p>
     );
@@ -47,16 +50,26 @@ export function BuildersGrid({
 
   if (data.data.length === 0) {
     return (
-      <p className='py-12 text-center text-body-sm text-muted-foreground'>
-        {isNarrowed
-          ? 'No builders match these filters.'
-          : 'No builders to show yet.'}
-      </p>
+      <div className="flex flex-col items-center gap-3 py-12 text-center">
+        <p className="text-body-sm text-muted-foreground">
+          {isNarrowed
+            ? "No builders match these filters."
+            : "Builders appear here once their profile is complete and they have shipped work on Boundless."}
+        </p>
+        {!isNarrowed && onHelpClick && (
+          <button
+            onClick={onHelpClick}
+            className="text-primary-500 hover:text-primary-400 text-sm underline transition-colors"
+          >
+            How to get listed
+          </button>
+        )}
+      </div>
     );
   }
 
   return (
-    <div className='flex flex-col gap-8'>
+    <div className="flex flex-col gap-8">
       <div className={GRID_CLASS}>
         {data.data.map((builder) => (
           <BuilderCard
@@ -72,7 +85,7 @@ export function BuildersGrid({
           pageSize={pageSize}
           totalItems={data.pagination.total}
           onPageChange={onPageChange}
-          className='justify-between'
+          className="justify-between"
         />
       )}
     </div>
